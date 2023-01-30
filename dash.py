@@ -2,6 +2,9 @@ import pandas as pd
 import streamlit as st
 import requests
 import plotly.graph_objects as go
+import numpy as np
+import shap
+import matplotlib.pyplot as plt
 
 def request_prediction(model_uri, data):
     headers = {"Content-Type": "application/json"}
@@ -54,7 +57,15 @@ def main():
             st.dataframe(df_filtered.drop(columns="TARGET"))
 
             X_cust = [i for i in df_filtered.iloc[:,2:].values.tolist()[0]]
-            pred = request_prediction(FastAPI_URI, X_cust)
+            pred, shap_values, shap_base_value = request_prediction(FastAPI_URI, X_cust)
+
+            # X_std = pipeline[0].transform([X_cust])
+            #shap_values_calc = shap_explainer(X_std[0:1])
+            shap_obj = shap.Explanation(np.array(shap_values), base_values=np.array(shap_base_value))
+            plt.title('Local FI')
+            shap_plot = shap.plots.waterfall(shap_obj[0])
+            st.pyplot(shap_plot, bbox_inches='tight')
+
             gauge(1-pred[0])
             if pred[0] <= 0.5:
                 st.write(
