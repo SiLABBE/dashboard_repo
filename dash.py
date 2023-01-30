@@ -46,6 +46,7 @@ def main():
     data_path = 'df_train_model_selected_50cust.csv'
 
     df_customer, customer_list = customer_data(data_path=data_path)
+    features_list = df_customer.iloc[:,2:].columns.values
 
     st.title('Simulation for a customer loan request')
     selected_customer = st.text_input('Customer ID (format exemple : 200605):')
@@ -56,12 +57,18 @@ def main():
             filtered_customer = int(selected_customer)
             st.success("Selected customer : %s" %filtered_customer)
             df_filtered = df_customer[df_customer["SK_ID_CURR"]==filtered_customer]
+
             st.dataframe(df_filtered.drop(columns="TARGET"))
 
             X_cust = [i for i in df_filtered.iloc[:,2:].values.tolist()[0]]
             pred, shap_values, shap_base_value = request_prediction(FastAPI_URI, X_cust)
 
-            shap_obj = shap.Explanation(np.array(shap_values), base_values=np.array(shap_base_value))
+            shap_obj = shap.Explanation(
+                np.array(shap_values),
+                base_values=np.array(shap_base_value),
+                feature_names=features_list
+                )
+
             plt.title('Main parameters impacting the decision')
             shap_plot = shap.plots.waterfall(shap_obj[0])
             st.pyplot(shap_plot, bbox_inches='tight')
