@@ -6,6 +6,8 @@ import numpy as np
 import shap
 import matplotlib.pyplot as plt
 
+st.set_option('deprecation.showPyplotGlobalUse', False)
+
 def request_prediction(model_uri, data):
     headers = {"Content-Type": "application/json"}
 
@@ -59,10 +61,8 @@ def main():
             X_cust = [i for i in df_filtered.iloc[:,2:].values.tolist()[0]]
             pred, shap_values, shap_base_value = request_prediction(FastAPI_URI, X_cust)
 
-            # X_std = pipeline[0].transform([X_cust])
-            #shap_values_calc = shap_explainer(X_std[0:1])
             shap_obj = shap.Explanation(np.array(shap_values), base_values=np.array(shap_base_value))
-            plt.title('Local FI')
+            plt.title('Main parameters impacting the decision')
             shap_plot = shap.plots.waterfall(shap_obj[0])
             st.pyplot(shap_plot, bbox_inches='tight')
 
