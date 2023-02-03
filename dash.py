@@ -114,7 +114,7 @@ def main():
             st.success("Selected customer : %s" %filtered_customer)
 
             df_filtered = df_customer[df_customer["SK_ID_CURR"]==filtered_customer]
-            st.dataframe(df_filtered.drop(columns=["TARGET", "y_score"]))
+            st.dataframe(df_filtered.drop(columns=["TARGET", "y_score", "y_pred"]))
 
             X_cust = [i for i in df_filtered.iloc[:,2:-2].values.tolist()[0]]
             pred, shap_values, shap_base_value = request_prediction(FastAPI_URI, X_cust)
