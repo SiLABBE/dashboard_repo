@@ -119,9 +119,9 @@ def multi_features_plot(data, feat_1, feat_2, filtered_customer, display_score):
     fig_2.update_layout(legend_traceorder="reversed")
 
     if display_score:
-        st.plotly_chart(fig_2)
+        st.plotly_chart(fig_2, use_container_width=True)
     else:
-        st.plotly_chart(fig_1)
+        st.plotly_chart(fig_1, use_container_width=True)
 
 def global_FI_plot(n_top=20):
     # Fonction ploting n_top most important coeff of the logistic regression
