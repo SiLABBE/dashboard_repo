@@ -82,8 +82,13 @@ def multi_features_plot(data, feat_1, feat_2, filtered_customer, display_score):
                 marker=dict(
                     color="red",
                     size=15,
-                ),
-                name="Selected Customer")
+                    ),
+                name="Selected Customer",
+                legend=dict(
+                    x=0.5,
+                    y=1.1
+                    )
+                )
             ]
         )
     
@@ -110,6 +115,10 @@ def multi_features_plot(data, feat_1, feat_2, filtered_customer, display_score):
                     size=15,
                     ),
                 name="Selected Customer",
+                legend=dict(
+                    x=0.5,
+                    y=1.1
+                    )
                 )
             ]
         )
