@@ -37,15 +37,17 @@ def gauge(score):
         title = {'text': "Customer solvency score"},
         gauge = {'axis': {'range': [0, 1]},
              'steps' : [
-                 {'range': [0, 0.48], 'color': "darkorange"},
-                 {'range': [0.48, 0.58], 'color': "yellow"}],
+                 {'range': [0, 0.47], 'color': "darkorange"},
+                 {'range': [0.47, 0.52], 'color': "yellow"}],
              'threshold' : {'line': {'color': "red", 'width': 4}, 'thickness': 0.75, 'value': score}}))
     st.plotly_chart(fig, theme="streamlit")
     # Define loan attribution choice according to predicted score
-    if score > 0.47:
+    if score <=  0.47:
+        decision_message = 'Loan Decision: DENIED'
+    elif score < 0.52:
+        decision_message = 'Loan Decision: To be confirmed'
+    else:
         decision_message = 'Loan Decision: ACCEPTED'
-    elif score <=  0.47:
-        decision_message = 'Loan Decision: REFUSED'
     return decision_message
 
 def multi_features_plot(data, feat_1, feat_2, filtered_customer, display_score):
