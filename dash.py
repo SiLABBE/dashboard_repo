@@ -43,11 +43,10 @@ def gauge(score):
     st.plotly_chart(fig, theme="streamlit")
     # Define loan attribution choice according to predicted score
     if score > 0.47:
-                st.write(
-                    'Loan Decision: ACCEPTED')
+        decision_message = 'Loan Decision: ACCEPTED'
     elif score <=  0.47:
-                st.write(
-                    'Loan Decision: REFUSED')
+        decision_message = 'Loan Decision: REFUSED'
+    return decision_message
 
 def multi_features_plot(data, feat_1, feat_2, filtered_customer, display_score):
     st.subheader("Selected Customer position compared to others")
@@ -169,7 +168,8 @@ def main():
             X_cust = [i for i in df_filtered.iloc[:,2:-2].values.tolist()[0]]
             pred, shap_values, shap_base_value = request_prediction(FastAPI_URI, X_cust)
 
-            gauge(pred[0])
+            verdict = gauge(pred[0])
+            st.write(verdict)
 
             multi_features_plot(
                 df_customer, 
