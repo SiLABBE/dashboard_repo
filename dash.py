@@ -2,9 +2,10 @@ import pandas as pd
 import streamlit as st
 import requests
 import plotly.graph_objects as go
-import numpy as np
 import shap
+import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
@@ -28,59 +29,117 @@ def customer_data(data_path):
     return df, customer_list
 
 def gauge(score):
+    # Draw a gauge to illustrate the predicted score
     fig = go.Figure(go.Indicator(
         mode = "gauge+number",
         value = score,
         domain = {'x': [0, 1], 'y': [0, 1]},
-        title = {'text': "Predicted score"},
+        title = {'text': "Customer solvency score"},
         gauge = {'axis': {'range': [0, 1]},
              'steps' : [
-                 {'range': [0, 0.45], 'color': "darkorange"},
-                 {'range': [0.45, 0.55], 'color': "yellow"}],
+                 {'range': [0, 0.48], 'color': "darkorange"},
+                 {'range': [0.48, 0.58], 'color': "yellow"}],
              'threshold' : {'line': {'color': "red", 'width': 4}, 'thickness': 0.75, 'value': score}}))
-
     st.plotly_chart(fig, theme="streamlit")
+    # Define loan attribution choice according to predicted score
+    if score > 0.47:
+                st.write(
+                    'Loan Decision: ACCEPTED')
+    elif score <=  0.47:
+                st.write(
+                    'Loan Decision: REFUSED')
+
+def multi_features_plot(data, feat_1, feat_2, filtered_customer):
+    st.subheader("Selected Customer position compared to others")
+    df_cust = data[data["SK_ID_CURR"]==filtered_customer]
+    df = data[[feat_1, feat_2, 'y_pred']]
+    df_cust = df_cust[[feat_1, feat_2, 'y_pred']]
+
+    fig = go.Figure(
+        data=[
+            go.Scatter(
+                x=df[feat_1],
+                y=df[feat_2],
+                mode='markers',
+                marker_color=df['y_pred']),
+            go.Scatter(
+                x=df_cust[feat_1],
+                y=df_cust[feat_2],
+                mode="markers",
+                marker=dict(
+                    color="red",
+                    size=15,
+                ),
+                name="Selected Customer")
+            ]
+        )
+    st.plotly_chart(fig)
+
+def global_FI_plot(n_top=20):
+    # Fonction ploting n_top most important coeff of the logistic regression
+    plt.figure(figsize=(15,6))
+    df_coeff = pd.read_csv('df_model_selected_coef.csv')
+    logistic_reg_coeff = df_coeff.loc[0].values
+    color_list =  sns.color_palette("dark", len(df_coeff.columns)) 
+    top_x = n_top
+    idx = np.argsort(np.abs(logistic_reg_coeff))[::-1] 
+    lreg_ax = plt.barh(df_coeff.columns[idx[:top_x]][::-1], logistic_reg_coeff[idx[:top_x]][::-1])
+    for i,bar in enumerate(lreg_ax):
+        bar.set_color(color_list[idx[:top_x][::-1][i]])
+    plt.box(False) 
+    plt.suptitle(
+        "Global importance of main parameters (Top " + str(top_x) + ")",
+         fontsize=20, fontweight="normal"
+         )
+    st.pyplot()
 
 def main():
     FastAPI_URI = 'https://opc-p8-fastapi.herokuapp.com/predict'
-    data_path = 'df_train_model_selected_50cust.csv'
+    data_path = 'df_model_selected_1pcust.csv'
 
     df_customer, customer_list = customer_data(data_path=data_path)
-    features_list = df_customer.iloc[:,2:].columns.values
+    features_list = df_customer.iloc[:,2:-2].columns.values
 
     st.title('Simulation for a customer loan request')
-    selected_customer = st.text_input('Customer ID (format exemple : 200605):')
-    customer_btn = st.button('Search for customer')
+    selected_customer = st.sidebar.text_input('Customer ID (format exemple : 309518):')
+    customer_btn = st.sidebar.button('Search for customer')
+    feature_select = st.sidebar.multiselect(
+                        "Select 2 features to see customer position",
+                        features_list, default=["AMT_GOODS_PRICE", "EXT_SOURCE_2"]
+                        )
 
     if customer_btn:
         if int(selected_customer) in customer_list:
             filtered_customer = int(selected_customer)
             st.success("Selected customer : %s" %filtered_customer)
+
             df_filtered = df_customer[df_customer["SK_ID_CURR"]==filtered_customer]
+            st.dataframe(df_filtered.drop(columns=["TARGET", "y_score"]))
 
-            st.dataframe(df_filtered.drop(columns="TARGET"))
-
-            X_cust = [i for i in df_filtered.iloc[:,2:].values.tolist()[0]]
+            X_cust = [i for i in df_filtered.iloc[:,2:-2].values.tolist()[0]]
             pred, shap_values, shap_base_value = request_prediction(FastAPI_URI, X_cust)
 
-            shap_obj = shap.Explanation(
-                np.array(shap_values),
-                base_values=np.array(shap_base_value),
-                feature_names=features_list
+            gauge(pred[0])
+
+            multi_features_plot(
+                df_customer, 
+                feature_select[0], feature_select[1], 
+                filtered_customer
                 )
 
-            plt.title('Main parameters impacting the decision')
+            shap_obj = shap.Explanation(
+                np.array(shap_values), 
+                base_values=np.array(shap_base_value), 
+                feature_names=features_list
+                )
+            
+            plt.title('Main parameters impacting customer %s loan decision' %filtered_customer)
+
             shap_plot = shap.plots.waterfall(shap_obj[0])
             st.pyplot(shap_plot, bbox_inches='tight')
 
-            gauge(1-pred[0])
-            if pred[0] <= 0.5:
-                st.write(
-                    'Loan Decision: ACCEPTED')
-            elif pred[0] > 0.5:
-                st.write(
-                    'Loan Decision: REFUSED')
-            
+            global_FI_plot()
+                        
         else :
             st.warning("Unknown customer")
 

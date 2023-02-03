@@ -20,7 +20,7 @@ click==8.1.3
     # via streamlit
 cloudpickle==2.2.1
     # via shap
-colorama==0.4.6
+colorama==0.4.5
     # via
     #   click
     #   tqdm
@@ -59,7 +59,9 @@ markdown-it-py==2.1.0
 markupsafe==2.1.2
     # via jinja2
 matplotlib==3.6.3
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   seaborn
 mdurl==0.1.2
     # via markdown-it-py
 numba==0.56.4
@@ -76,9 +78,10 @@ numpy==1.23.5
     #   pydeck
     #   scikit-learn
     #   scipy
+    #   seaborn
     #   shap
     #   streamlit
-packaging==23.0
+packaging==21.3
     # via
     #   matplotlib
     #   shap
@@ -87,6 +90,7 @@ pandas==1.5.3
     # via
     #   -r requirements.in
     #   altair
+    #   seaborn
     #   shap
     #   streamlit
 pillow==9.4.0
@@ -106,7 +110,9 @@ pygments==2.14.0
 pympler==1.0.1
     # via streamlit
 pyparsing==3.0.9
-    # via matplotlib
+    # via
+    #   matplotlib
+    #   packaging
 pyrsistent==0.19.3
     # via jsonschema
 python-dateutil==2.8.2
@@ -122,14 +128,16 @@ requests==2.28.2
     # via
     #   -r requirements.in
     #   streamlit
-rich==13.3.1
+rich==13.3.0
     # via streamlit
-scikit-learn==1.2.1
+scikit-learn==1.2.0
     # via shap
-scipy==1.10.0
+scipy==1.9.3
     # via
     #   scikit-learn
     #   shap
+seaborn==0.12.2
+    # via -r requirements.in
 semver==2.13.0
     # via streamlit
 shap==0.41.0
@@ -144,7 +152,7 @@ streamlit==1.17.0
     # via -r requirements.in
 tenacity==8.1.0
     # via plotly
-threadpoolctl==3.1.0
+threadpoolctl==2.2.0
     # via scikit-learn
 toml==0.10.2
     # via streamlit
