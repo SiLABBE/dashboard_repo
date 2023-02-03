@@ -23,7 +23,7 @@ def request_prediction(model_uri, data):
     return response.json()
 
 def customer_data(data_path):
-    df=pd.read_csv(data_path, nrows=50)
+    df=pd.read_csv(data_path)
     df["SK_ID_CURR"] = df["SK_ID_CURR"].astype(int)
     customer_list = df["SK_ID_CURR"].drop_duplicates().to_list()
     return df, customer_list
