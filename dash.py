@@ -62,6 +62,7 @@ def multi_features_plot(data, feat_1, feat_2, filtered_customer, display_score):
             go.Scatter(
                 x=df_ok[feat_1],
                 y=df_ok[feat_2],
+                visible='legendonly',
                 mode='markers',
                 marker_color='green',
                 name="Accepted Loans"
@@ -70,6 +71,7 @@ def multi_features_plot(data, feat_1, feat_2, filtered_customer, display_score):
                 x=df_ko[feat_1],
                 y=df_ok[feat_2],
                 mode='markers',
+                visible='legendonly',
                 marker_color='yellow',
                 name="Rejected Loans"
                 ),
@@ -97,7 +99,8 @@ def multi_features_plot(data, feat_1, feat_2, filtered_customer, display_score):
                     colorscale='Viridis',
                     showscale=True
                     ),
-                name="Customers score"
+                name="Customers score",
+                legendgroup="group1"
                 ),
             go.Scatter(
                 x=df_cust[feat_1],
@@ -107,7 +110,8 @@ def multi_features_plot(data, feat_1, feat_2, filtered_customer, display_score):
                     color="red",
                     size=15,
                     ),
-                name="Selected Customer"
+                name="Selected Customer",
+                legendgroup="group2"
                 )
             ]
         )
