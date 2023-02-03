@@ -63,12 +63,16 @@ def multi_features_plot(data, feat_1, feat_2, filtered_customer, display_score):
                 x=df_ok[feat_1],
                 y=df_ok[feat_2],
                 mode='markers',
-                marker_color='green'),
+                marker_color='green',
+                name="Accepted Loans"
+                ),
             go.Scatter(
                 x=df_ko[feat_1],
                 y=df_ok[feat_2],
                 mode='markers',
-                marker_color='yellow'),
+                marker_color='yellow',
+                name="Rejected Loans"
+                ),
             go.Scatter(
                 x=df_cust[feat_1],
                 y=df_cust[feat_2],
@@ -89,10 +93,11 @@ def multi_features_plot(data, feat_1, feat_2, filtered_customer, display_score):
                 mode='markers',
                 marker=dict(
                     size=16,
-                    color=df['y_score'], #set color equal to a variable
-                    colorscale='Viridis', # one of plotly colorscales
+                    color=df['y_score'],
+                    colorscale='Viridis',
                     showscale=True
-                    )
+                    ),
+                name="Customers score"
                 ),
             go.Scatter(
                 x=df_cust[feat_1],
