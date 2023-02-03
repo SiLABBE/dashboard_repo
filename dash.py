@@ -100,7 +100,6 @@ def multi_features_plot(data, feat_1, feat_2, filtered_customer, display_score):
                     showscale=True
                     ),
                 name="Customers score",
-                legendgroup="group1"
                 ),
             go.Scatter(
                 x=df_cust[feat_1],
@@ -111,13 +110,13 @@ def multi_features_plot(data, feat_1, feat_2, filtered_customer, display_score):
                     size=15,
                     ),
                 name="Selected Customer",
-                legendgroup="group2"
                 )
             ]
         )
 
     fig_1.update_layout(xaxis_title=feat_1, yaxis_title=feat_2)
     fig_2.update_layout(xaxis_title=feat_1, yaxis_title=feat_2)
+    fig_2.update_layout(legend_traceorder="reversed")
 
     if display_score:
         st.plotly_chart(fig_2)
@@ -156,7 +155,7 @@ def main():
                         "Select 2 features to see customer position",
                         features_list, default=["AMT_GOODS_PRICE", "EXT_SOURCE_2"]
                         )
-    display_score = st.checkbox("Display score (else, prediction)", value=False)
+    display_score = st.sidebar.checkbox("Display score (else, prediction)", value=False)
 
     if customer_btn:
         if int(selected_customer) in customer_list:
