@@ -106,7 +106,10 @@ def multi_features_plot(data, feat_1, feat_2, filtered_customer, display_score):
                 )
             ]
         )
-    
+
+    fig_1.update_layout(xaxis_title=feat_1, yaxis_title=feat_2)
+    fig_2.update_layout(xaxis_title=feat_1, yaxis_title=feat_2)
+
     if display_score:
         st.plotly_chart(fig_2)
     else:
