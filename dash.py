@@ -49,19 +49,26 @@ def gauge(score):
                 st.write(
                     'Loan Decision: REFUSED')
 
-def multi_features_plot(data, feat_1, feat_2, filtered_customer):
+def multi_features_plot(data, feat_1, feat_2, filtered_customer, display_score):
     st.subheader("Selected Customer position compared to others")
     df_cust = data[data["SK_ID_CURR"]==filtered_customer]
-    df = data[[feat_1, feat_2, 'y_pred']]
+    df = data[[feat_1, feat_2, 'y_pred', 'y_score']]
+    df_ok = df[df['y_pred']==0]
+    df_ko = df[df['y_pred']==1]
     df_cust = df_cust[[feat_1, feat_2, 'y_pred']]
 
-    fig = go.Figure(
+    fig_1 = go.Figure(
         data=[
             go.Scatter(
-                x=df[feat_1],
-                y=df[feat_2],
+                x=df_ok[feat_1],
+                y=df_ok[feat_2],
                 mode='markers',
-                marker_color=df['y_pred']),
+                marker_color='green'),
+            go.Scatter(
+                x=df_ko[feat_1],
+                y=df_ok[feat_2],
+                mode='markers',
+                marker_color='yellow'),
             go.Scatter(
                 x=df_cust[feat_1],
                 y=df_cust[feat_2],
@@ -73,7 +80,37 @@ def multi_features_plot(data, feat_1, feat_2, filtered_customer):
                 name="Selected Customer")
             ]
         )
-    st.plotly_chart(fig)
+    
+    fig_2 = go.Figure(
+        data=[
+            go.Scatter(
+                x=df[feat_1],
+                y=df[feat_2],
+                mode='markers',
+                marker=dict(
+                    size=16,
+                    color=df['y_score'], #set color equal to a variable
+                    colorscale='Viridis', # one of plotly colorscales
+                    showscale=True
+                    )
+                ),
+            go.Scatter(
+                x=df_cust[feat_1],
+                y=df_cust[feat_2],
+                mode="markers",
+                marker=dict(
+                    color="red",
+                    size=15,
+                    ),
+                name="Selected Customer"
+                )
+            ]
+        )
+    
+    if display_score:
+        st.plotly_chart(fig_2)
+    else:
+        st.plotly_chart(fig_1)
 
 def global_FI_plot(n_top=20):
     # Fonction ploting n_top most important coeff of the logistic regression
@@ -107,6 +144,7 @@ def main():
                         "Select 2 features to see customer position",
                         features_list, default=["AMT_GOODS_PRICE", "EXT_SOURCE_2"]
                         )
+    display_score = st.checkbox("Display score (else, prediction)", value=False)
 
     if customer_btn:
         if int(selected_customer) in customer_list:
@@ -124,7 +162,8 @@ def main():
             multi_features_plot(
                 df_customer, 
                 feature_select[0], feature_select[1], 
-                filtered_customer
+                filtered_customer, 
+                display_score
                 )
 
             shap_obj = shap.Explanation(
